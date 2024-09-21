@@ -1,34 +1,32 @@
-# This file stores configurations for your Shopify app.
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
-scopes = "write_products"
+client_id = "2bf8c8f7b9e1a0c1922de2268975606e"
+name = "Ninja QR Code"
+handle = "ninja-qr-code"
+application_url = "https://weak-certified-produce-doors.trycloudflare.com"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = true
+dev_store_url = "nfang.myshopify.com"
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "read_content,read_products"
+
+[auth]
+redirect_urls = [
+  "https://weak-certified-produce-doors.trycloudflare.com/auth/callback",
+  "https://weak-certified-produce-doors.trycloudflare.com/auth/shopify/callback",
+  "https://weak-certified-produce-doors.trycloudflare.com/api/auth/callback"
+]
 
 [webhooks]
 api_version = "2024-07"
 
-  # Mandatory compliance topics for public apps
-  # Delete only if the app is not public
-  # See: https://shopify.dev/docs/apps/build/privacy-law-compliance
   [[webhooks.subscriptions]]
-  uri = "/webhooks/customers/data_request"
-  compliance_topics = [ "customers/data_request"]
-
-  [[webhooks.subscriptions]]
-  uri = "/webhooks/customers/redact"
-  compliance_topics = [ "customers/redact" ]
-
-  [[webhooks.subscriptions]]
-  uri = "/webhooks/shop/redact"
-  compliance_topics = [ "shop/redact" ]
-
-  # When a shop uninstalls the app, delete the session for that shop
-  [[webhooks.subscriptions]]
-  uri = "/webhooks/app/uninstalled"
   topics = [ "app/uninstalled" ]
+  uri = "/webhooks"
 
-  # # For reference
-  # # Only receive webhooks for products with a price >= 10.00
-  # # See: https://shopify.dev/docs/apps/build/webhooks/customize/filters
-  # [[webhooks.subscriptions]]
-  # topics = ["products/update"]
-  # uri = "https://example.com/webhooks"
-  # filter = "variants.price:>=10.00"
+[pos]
+embedded = false
