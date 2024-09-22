@@ -3,7 +3,7 @@
 client_id = "2bf8c8f7b9e1a0c1922de2268975606e"
 name = "Ninja QR Code"
 handle = "ninja-qr-code"
-application_url = "https://metallic-estate-effects-tests.trycloudflare.com"
+application_url = "https://powerpoint-drilling-compounds-moreover.trycloudflare.com"
 embedded = true
 
 [build]
@@ -16,9 +16,9 @@ scopes = "read_content,read_products"
 
 [auth]
 redirect_urls = [
-  "https://metallic-estate-effects-tests.trycloudflare.com/auth/callback",
-  "https://metallic-estate-effects-tests.trycloudflare.com/auth/shopify/callback",
-  "https://metallic-estate-effects-tests.trycloudflare.com/api/auth/callback"
+  "https://powerpoint-drilling-compounds-moreover.trycloudflare.com/auth/callback",
+  "https://powerpoint-drilling-compounds-moreover.trycloudflare.com/auth/shopify/callback",
+  "https://powerpoint-drilling-compounds-moreover.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
