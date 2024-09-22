@@ -1,9 +1,17 @@
-
 import qrcode from "qrcode";
 import invariant from "tiny-invariant";
 import db from "../db.server";
 import type { QRCode as  QRCodeModel } from "@prisma/client";
-export type { QRCode as  QRCodeModel } from "@prisma/client";
+
+export interface ExtendedQRCode extends QRCodeModel {
+  productTitle: string | '';
+  productImage: string | '';
+  productAlt: string | '';
+  productDeleted: boolean;
+  destinationUrl: string;
+  image: string;
+}
+
 
 export async function getQRCode({ id, graphql } : Pick<QRCodeModel, "id"> & {graphql: any}) {
   const qrCode = await db.qRCode.findFirst({ where: { id } });
@@ -61,17 +69,29 @@ async function supplementQRCode({qrCode, graphql} : { qrCode: QRCodeModel,  grap
 
   const response = await graphql(
     `
-      query supplementQRCode($id: ID!) {
-        product(id: $id) {
-          title
-          images(first: 1) {
-            nodes {
-              altText
-              url
+      query getProductById($id: ID!) {
+      product(id: $id) {
+        id
+        title
+        media(first: 1) {
+          edges {
+            node {
+              ... on MediaImage {
+                image {
+                  url
+                  altText
+                }
+              }
+              ... on Video {
+                sources {
+                  url
+                }
+              }
             }
           }
         }
       }
+    }
     `,
     {
       variables: {
@@ -80,16 +100,13 @@ async function supplementQRCode({qrCode, graphql} : { qrCode: QRCodeModel,  grap
     }
   );
 
-  const {
-    data: { product },
-  } = await response.json();
-
+  const { data: { product } } = response;
   return {
     ...qrCode,
     productDeleted: !product?.title,
     productTitle: product?.title,
-    productImage: product?.images?.nodes[0]?.url,
-    productAlt: product?.images?.nodes[0]?.altText,
+    productImage: product?.media?.edges[0]?.node?.image?.url ?? null,
+    productAlt: product?.media?.edges[0]?.node?.image?.altText ?? null,
     destinationUrl: getDestinationUrl(qrCode),
     image: await qrCodeImagePromise,
   };

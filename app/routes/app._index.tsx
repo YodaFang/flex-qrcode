@@ -17,12 +17,13 @@ import {
 
 import { getQRCodes } from "~/models/QRCode.server";
 import { AlertDiamondIcon, ImageIcon } from "@shopify/polaris-icons";
+import type { ExtendedQRCode } from "~/models/QRCode.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { admin, session } = await authenticate.admin(request);
   const qrCodes = await getQRCodes(session.shop, admin.graphql);
   return json(qrCodes);
-}
+};
 
 const EmptyQRCodeState = ({ onAction }: { onAction: () => void }) => (
   <EmptyState
@@ -43,7 +44,7 @@ function truncate(str : string, { length = 25 } = {}) {
   return str.slice(0, length) + "…";
 }
 
-const QRTable: FunctionComponent = ({ qrCodes }) => (
+const QRTable: FunctionComponent<{ qrCodes: ExtendedQRCode[] }> = ({ qrCodes }) => (
   <IndexTable
     resourceName={{
       singular: "QR code",
@@ -51,7 +52,7 @@ const QRTable: FunctionComponent = ({ qrCodes }) => (
     }}
     itemCount={qrCodes.length}
     headings={[
-      { title: "Thumbnail", hidden: true },
+      { title: "Thumbnail" },
       { title: "Title" },
       { title: "Product" },
       { title: "Date created" },
@@ -65,12 +66,12 @@ const QRTable: FunctionComponent = ({ qrCodes }) => (
   </IndexTable>
 );
 
-const QRTableRow = ({ qrCode }) => (
+const QRTableRow: FunctionComponent<{ qrCode: ExtendedQRCode }> = ({ qrCode }) => (
   <IndexTable.Row id={qrCode.id.toString()} position={qrCode.id}>
     <IndexTable.Cell>
       <Thumbnail
         source={qrCode.productImage || ImageIcon}
-        alt={qrCode.productTitle}
+        alt={qrCode.productTitle || "No image"}
         size="small"
       />
     </IndexTable.Cell>
@@ -84,7 +85,7 @@ const QRTableRow = ({ qrCode }) => (
             <Icon source={AlertDiamondIcon} tone="critical" />
           </span>
           <Text tone="critical" as="span">
-            product has been deleted
+            Product has been deleted
           </Text>
         </InlineStack>
       ) : (
@@ -92,14 +93,15 @@ const QRTableRow = ({ qrCode }) => (
       )}
     </IndexTable.Cell>
     <IndexTable.Cell>
-      { qrCode.createdAt }
+      { new Date(qrCode.createdAt).toLocaleDateString() } {/* 确保 createdAt 正确格式化 */}
     </IndexTable.Cell>
     <IndexTable.Cell>{qrCode.scans}</IndexTable.Cell>
   </IndexTable.Row>
 );
 
+
 export default function Index() {
-  const qrCodes = useLoaderData<typeof loader>();
+  const qrCodes = useLoaderData<ExtendedQRCode[]>();
   const navigate = useNavigate();
 
   return (

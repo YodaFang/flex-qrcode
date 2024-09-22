@@ -29,7 +29,7 @@ import { ImageIcon } from "@shopify/polaris-icons";
 
 import db from "~/db.server";
 import { getQRCode, newQRCodeModel, validateQRCode } from "~/models/QRCode.server";
-import type { QRCodeModel } from "~/models/QRCode.server";
+import type { ExtendedQRCode } from "~/models/QRCode.server";
 import type { LoaderFunctionArgs, ActionFunction } from "@remix-run/node";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -63,7 +63,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   const data = {
     ...Object.fromEntries(formData),
     shop,
-  } as QRCodeModel;
+  } as ExtendedQRCode;
 
   if (actionType === "delete") {
     await db.qRCode.delete({ where: { id: Number(params.id) } });
@@ -85,7 +85,7 @@ export const action: ActionFunction = async ({ request, params }) => {
 }
 
 export default function QRCodeForm() {
-  const qrCode = useLoaderData<typeof loader>();
+  const qrCode = useLoaderData<ExtendedQRCode>();
   const actionData = useActionData<typeof action>();
   const errors = actionData?.errors || {};
   const [formState, setFormState] = useState(qrCode);
