@@ -22,7 +22,7 @@ import type { ExtendedQRCode } from "~/models/QRCode.server";
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { admin, session } = await authenticate.admin(request);
   const qrCodes = await getQRCodes(session.shop, admin.graphql);
-  return json(qrCodes);
+  return qrCodes;
 };
 
 const EmptyQRCodeState = ({ onAction }: { onAction: () => void }) => (

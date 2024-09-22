@@ -100,7 +100,7 @@ async function supplementQRCode({qrCode, graphql} : { qrCode: QRCodeModel,  grap
     }
   );
 
-  const { data: { product } } = response;
+  const { data: { product } } = await response.json();
   return {
     ...qrCode,
     productDeleted: !product?.title,
