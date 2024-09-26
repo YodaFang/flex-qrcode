@@ -13,8 +13,7 @@ export default function ProfilesTable(profiles: any[]) {
     plural: 'Profiles',
   };
 
-  const { selectedResources, allResourcesSelected, handleSelectionChange, clearSelection } =
-    useIndexResourceState(profiles);
+  const { selectedResources, allResourcesSelected, handleSelectionChange, clearSelection } = useIndexResourceState(profiles);
 
   const truncate = (str: string, { length = 25 } = {}): string =>
     !str ? '' : str.length <= length ? str : `${str.slice(0, length)}…`;
