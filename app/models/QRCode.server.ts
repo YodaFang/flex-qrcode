@@ -37,7 +37,7 @@ export function newQRCodeModel(): Omit<QRCodeModel, 'id' | 'createdAt' | 'update
       productVariantId: '',
       destination: '',
       scans: 0,
-      profileId: -1,
+      profileId: null,
     };
 }
 
@@ -60,6 +60,46 @@ export async function getQRCodes(shop: string, graphql: any) {
     return extendQRCode(qrCode, product);
   });
 }
+
+export async function createOrUpdateQRCode(
+  data: Omit<QRCodeModel, "id" | "createdAt" | "updatedAt"> & { id?: number }
+) {
+  try {
+    if (data.id && data.id > 0) {
+      const updatedQRCode = await db.qRCode.update({
+        where: { id: data.id },
+        data: {
+          title: data.title,
+          shop: data.shop,
+          productId: data.productId,
+          productHandle: data.productHandle,
+          productVariantId: data.productVariantId,
+          destination: data.destination,
+          profileId: data.profileId,
+        },
+      });
+      return updatedQRCode;
+    }
+
+    const newQRCode = await db.qRCode.create({
+      data: {
+        title: data.title,
+        shop: data.shop,
+        productId: data.productId,
+        productHandle: data.productHandle,
+        productVariantId: data.productVariantId,
+        destination: data.destination,
+        profileId: data.profileId,
+        scans: data.scans || 0,
+      },
+    });
+    return newQRCode;
+  } catch (error) {
+    console.error("Unexpected error:", error);
+    throw error;
+  }
+}
+
 
 export function getQRCodeImage(id: number) {
   const url = new URL(`/qrcodes/${id}/scan`, process.env.SHOPIFY_APP_URL);

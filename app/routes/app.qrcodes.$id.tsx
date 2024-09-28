@@ -27,7 +27,6 @@ import {
 } from "@shopify/polaris";
 import { ImageIcon } from "@shopify/polaris-icons";
 
-import db from "~/db.server";
 import { getQRCode, newQRCodeModel, validateQRCode } from "~/models/QRCode.server";
 import type { ExtendedQRCode } from "~/models/QRCode.server";
 import type { LoaderFunctionArgs, ActionFunction } from "@remix-run/node";

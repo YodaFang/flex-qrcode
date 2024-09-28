@@ -1,6 +1,10 @@
 import { Prisma } from '@prisma/client';
 import db from "~/db.server";
+import type { Profile as Model } from "@prisma/client";
 export type { Profile }  from "@prisma/client";
+
+type ModelData = Prisma.ProfileCreateInput & { id?: number };
+export type { ModelData };
 
 // Fetch a single profile by id and optionally shop
 export async function getProfile(id: number, shop?: string) {
