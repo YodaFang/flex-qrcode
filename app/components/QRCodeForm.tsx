@@ -15,7 +15,6 @@ export default function QRCodeForm() {
           error={errors.title}
           helpText="Only store staff can see this title"
         />
-
         <Select
           label="Profile"
           name="profileId"
@@ -24,7 +23,6 @@ export default function QRCodeForm() {
           value={formState.profileId}
         />
       </Card>
-
       <Card>
         <TextField
           id="title"
@@ -36,7 +34,6 @@ export default function QRCodeForm() {
           error={errors.title}
           helpText="Only store staff can see this title"
         />
-
         <Select
           label="Profile"
           name="profileId"

@@ -24,7 +24,7 @@ import { useEffect, useState } from 'react';
 import { authenticate } from '../shopify.server';
 import type { ExtendedQRCode } from "~/models/QRCode.server";
 import { getProfiles } from '~/models/Profile.server';
-import { getQRCode, newModel as newQRCodeModel, validateQRCode } from "~/models/QRCode.server";
+import { newModel as newQRCodeModel, validateQRCode } from "~/models/QRCode.server";
 import db from "~/db.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -47,6 +47,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const { session } = await authenticate.admin(request);
   const { shop } = session;
   const formData = await request.formData();
+  const title = formData.get('title')?.toString();
 
   const data = {
     ...Object.fromEntries(formData),

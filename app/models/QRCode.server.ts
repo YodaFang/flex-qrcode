@@ -174,9 +174,11 @@ export function utmParams(profile: Profile) {
 }
 
 export function validateQRCode(data: QRCodeModel) {
-  const errors = {};
+  const errors: { [key: string]: string } = {};
 
-  if (Object.keys(errors).length) {
-    return errors;
+  if(!data.title){
+    errors.title = 'Title is required';
   }
+
+  return errors;
 }
