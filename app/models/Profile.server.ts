@@ -1,10 +1,25 @@
 import { Prisma } from '@prisma/client';
 import db from "~/db.server";
-import type { Profile as Model } from "@prisma/client";
+import type { Profile } from "@prisma/client";
 export type { Profile }  from "@prisma/client";
+import { singleton } from "~/utils/singleton.server";
+import { getModelFields, getDefaultFieldValue } from "~/models/utils";
 
-type ModelData = Prisma.ProfileCreateInput & { id?: number };
-export type { ModelData };
+const modelName = 'profile';
+export type ModelData = Prisma.ProfileCreateInput & { id?: number };
+const model = db[modelName];
+const fields = singleton(`${modelName}_fields`, () => getModelFields(modelName));
+
+export function newModel(){
+  const m: Record<string, any>  = {};
+  if (fields) {
+    fields.forEach((f) => {
+      if(f.isId || f.isUpdatedAt || f.isReadOnly) return;
+      m[f.name] = f.hasDefaultValue ? null : getDefaultFieldValue(f.type);
+    });
+  }
+  return m;
+}
 
 // Fetch a single profile by id and optionally shop
 export async function getProfile(id: number, shop?: string) {
@@ -61,4 +76,3 @@ export async function deleteProfilesByIds(profileIds: number[]) {
     return { success: false, error: "Failed to delete profiles" };
   }
 }
-

@@ -1,8 +1,10 @@
 import qrcode from "qrcode";
 import invariant from "tiny-invariant";
 import db from "~/db.server";
-import type { QRCode as  QRCodeModel } from "@prisma/client";
+import type { Prisma, QRCode as QRCodeModel } from "@prisma/client";
 import type { Profile } from "@prisma/client";
+import { singleton } from "~/utils/singleton.server";
+import { getModelFields, getDefaultFieldValue } from "~/models/utils";
 
 export interface ExtendedQRCode extends QRCodeModel {
   productTitle: string | '';
@@ -13,8 +15,23 @@ export interface ExtendedQRCode extends QRCodeModel {
   image: string;
 }
 
-export async function getQRCode({ id, graphql } : Pick<QRCodeModel, "id"> & {graphql: any}) {
-  const qrCode = await db.qRCode.findFirst({ where: { id } });
+const modelName = 'qRCode';
+const model = db[modelName];
+const fields = singleton(`${modelName}_fields`, () => getModelFields(modelName));
+
+export function newModel(){
+  const m: Record<string, any>  = {};
+  if (fields) {
+    fields.forEach((f) => {
+      if(f.isId || f.isUpdatedAt || f.isReadOnly) return;
+      m[f.name] = f.hasDefaultValue ? null : getDefaultFieldValue(f.type);
+    });
+  }
+  return m as QRCodeModel;
+}
+
+export async function getQRCode({ id, graphql} : Pick<QRCodeModel, "id"> & {graphql: any}) {
+  const qrCode = await model.findFirst({ where: { id } });
   if (!qrCode) return null;
 
   const response = await graphql(GET_PRODUCT_QUERY, {
@@ -24,25 +41,12 @@ export async function getQRCode({ id, graphql } : Pick<QRCodeModel, "id"> & {gra
   return extendQRCode(qrCode, product);
 }
 
-export async function findQRCode({ id } : Pick<QRCodeModel, "id"> ) {
-  return await db.qRCode.findFirst({ where: { id }, include: { profile: true } });
-}
-
-export function newQRCodeModel(): Omit<QRCodeModel, 'id' | 'createdAt' | 'updatedAt'>  {
-  return {
-      title: '',
-      shop: '',
-      productId: '',
-      productHandle: '',
-      productVariantId: '',
-      destination: '',
-      scans: 0,
-      profileId: null,
-    };
+export async function findQRCode(id: number) {
+  return await model.findFirst({ where: { id }, include: { profile: true } });
 }
 
 export async function getQRCodes(shop: string, graphql: any) {
-  const qrCodes = await db.qRCode.findMany({
+  const qrCodes = await model.findMany({
     where: { shop },
     orderBy: { id: "desc" },
   });
@@ -61,37 +65,18 @@ export async function getQRCodes(shop: string, graphql: any) {
   });
 }
 
-export async function createOrUpdateQRCode(
-  data: Omit<QRCodeModel, "id" | "createdAt" | "updatedAt"> & { id?: number }
-) {
+export async function createOrUpdateQRCode(data: Prisma.QRCodeCreateInput, id?: number) {
   try {
-    if (data.id && data.id > 0) {
-      const updatedQRCode = await db.qRCode.update({
-        where: { id: data.id },
-        data: {
-          title: data.title,
-          shop: data.shop,
-          productId: data.productId,
-          productHandle: data.productHandle,
-          productVariantId: data.productVariantId,
-          destination: data.destination,
-          profileId: data.profileId,
-        },
+    if (id && id > 0) {
+      const updatedQRCode = await model.update({
+        where: { id: id },
+        data: data,
       });
       return updatedQRCode;
     }
 
-    const newQRCode = await db.qRCode.create({
-      data: {
-        title: data.title,
-        shop: data.shop,
-        productId: data.productId,
-        productHandle: data.productHandle,
-        productVariantId: data.productVariantId,
-        destination: data.destination,
-        profileId: data.profileId,
-        scans: data.scans || 0,
-      },
+    const newQRCode = await model.create({
+      data: data,
     });
     return newQRCode;
   } catch (error) {
@@ -99,7 +84,6 @@ export async function createOrUpdateQRCode(
     throw error;
   }
 }
-
 
 export function getQRCodeImage(id: number) {
   const url = new URL(`/qrcodes/${id}/scan`, process.env.SHOPIFY_APP_URL);

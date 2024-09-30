@@ -27,9 +27,10 @@ import {
 } from "@shopify/polaris";
 import { ImageIcon } from "@shopify/polaris-icons";
 
-import { getQRCode, newQRCodeModel, validateQRCode } from "~/models/QRCode.server";
+import { getQRCode, newModel as newQRCodeModel, validateQRCode } from "~/models/QRCode.server";
 import type { ExtendedQRCode } from "~/models/QRCode.server";
 import type { LoaderFunctionArgs, ActionFunction } from "@remix-run/node";
+import db from "~/db.server";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { admin } = await authenticate.admin(request);
